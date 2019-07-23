@@ -91,37 +91,9 @@ coreos:
         Before=instance-stop.service
         [Service]
         TimeoutSec=${max_runtime}
-        ExecStartPre=/usr/bin/sh -c 'rm -fr /home/core/nam-automation'
-        ExecStartPre=/usr/bin/git clone -b ${automation_scenario_branch} ${automation_scenario_repo} /home/core/nam-automation
-        ExecStartPre=/usr/bin/sh -c 'if [ ! -z "${automation_scenario_git_commit}" ]; then \
-          cd /home/core/nam-automation; /usr/bin/git checkout ${automation_scenario_git_commit}; \
-          fi'
-        ExecStartPre=/usr/bin/docker pull tmhub.io/nam/nam-automation:${docker_image_version}
-        ExecStartPre=/usr/bin/docker pull tmhub.io/aws/aws-cli:${awscli_version}
-        ExecStartPre=/usr/bin/docker run --rm \
-          --name automation \
-          --shm-size 8gb \
-          -v /home/core/nam-automation:/usr/src \
-          -w /usr/src \
-          tmhub.io/nam/nam-automation:${docker_image_version} \
-          mvn generate-test-resources -Ptest -Dcalendar=${calendar_name} -DwriteToFile=true -DclearX=A -DreplaceCalendarFile=true -Denv=${environment_name} -DchromedriverPath=/usr/bin/chromedriver -DchromeArgument=headless '-DenvConfig=${env_config}' -DrelatedEnv=${related_env} -DdeviceConf=${device_conf} -DrunLocally=${run_locally} '-Dgroups=${groups}' -DcreateAccount=${create_account} -DuseATSGenericUrl=${use_ats_generic_url} -DadminUserName=${admin_username} '-DadminPassword=${admin_password}' -Dsessions=${sessions} -DsetSession=${set_session} -DseleniumURI=${selenium_uri} -Dparallel=${parallel} '-Dseats.paid=${seats_paid}' -DgenerateNewTestNgFile=${generate_new_testng_file}
-        ExecStart=/usr/bin/docker run --rm \
-          --name automation \
-          --shm-size 8gb \
-          -v /home/core/nam-automation:/usr/src \
-          -w /usr/src \
-          tmhub.io/nam/nam-automation:${docker_image_version} \
-          mvn test -Psurefire -Dtestng-suite-xml=testng-customsuite.xml -DchromedriverPath=/usr/bin/chromedriver -DchromeArgument=headless -Dcalendar=${calendar_name} -Denv=${environment_name} -DclearX=A '-DenvConfig=${env_config}' -DrelatedEnv=${related_env} -DsuiteTo=${suite_to} -DclassTo=${class_to} -DtakeScreenshot=${take_screenshot} -Dscreensizepadding=${screen_size_padding} -DreplaceCalendarFile=true -Dprofiles=default -Dbranch=${automation_scenario_branch} -DrunLocally=${run_locally} -DseleniumURI=${selenium_uri} -DdeviceConf=${device_conf} -DjenkinsIp=${jenkins_ip} -DaccountStatus=${account_status} -DdeviceList=${device_list} -DattachLogFile=${attach_log_file} -DsplunkLogIntegration=${splunk_log_integration} -DvideoGifIntegration=${video_gif_integration} -DconsoleLogsIntegration=${console_log_integration} -DgenerateGifOnlyOnFailure=${generate_gif_only_on_failure} -DkibanaLogIntegration=${kibana_log_integration} -DgatlingHost=${gatling_host}
-        ExecStopPost=/usr/bin/echo Hello from stop
-        ExecStopPost=/usr/bin/sh -c 'chmod +x /home/core/nam-automation/upload.sh'
-        ExecStopPost=/usr/bin/sh -c '/home/core/nam-automation/upload.sh /home/core/nam-automation/Reports/ ${client_name}'
-        ExecStopPost=/usr/bin/docker run --rm \
-          --name automation \
-          --shm-size 8gb \
-          -v /home/core/nam-automation:/usr/src \
-          -w /usr/src \
-          tmhub.io/nam/nam-automation:${docker_image_version} \
-          mvn generate-test-resources -PpostBuildAction -DrunLocally=${run_locally} -Denv=${environment_name} '-DenvConfig=${env_config}' -DadminUserName=${admin_username} '-DadminPassword=${admin_password}' -DsetSession=${set_session} -DseleniumURI=${selenium_uri} -DrelatedEnv=${related_env} -Dcalendar=${calendar_name} -DchromedriverPath=/usr/bin/chromedriver -DchromeArgument=headless
+        ExecStartPre=/usr/bin/sh -c 'rm -fr /home/core/jenkins-automation'
+        ExecStartPre=/usr/bin/git clone -b preeti https://git.tmaws.io/nam/jenkins-automation.git /home/core/jenkins-automation
+        ExecStart=/usr/bin/docker run --shm-size 8gb -u 0 -p ${jenkins_port}:8080 -v /var/run/docker.sock:/var/run/docker.sock -v /var/run:/var/run -v /home/core/jenkins-automation/jenkins_home:/var/jenkins_home -v /home/core/jenkins-automation/repository:/root/.m2/repository tmhub.io/nam/terraform-automation:${docker_image_version}
     - name: instance-stop.service
       command: start
       runtime: true

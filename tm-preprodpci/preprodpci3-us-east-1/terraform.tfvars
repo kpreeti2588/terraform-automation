@@ -1,18 +1,18 @@
 # DO NOT CHANGE
-aws_profile = "tm-nonprod-Ops-Techops"
-terraformer_bucket = "terraform.nonprod1.us-east-1.tmaws"
+aws_profile = "tm-pci-Ops-Techops"
+terraformer_bucket = "terraform.pci1.us-east-1.tmaws"
 
 # Your Terraform Variables
 # See Naming Standard: https://contegixapp1.livenation.com/confluence/display/AWS/Naming+Standards
 
 aws_region = "us-east-1"
-account_tag = "tm-nonprod"
+account_tag = "tm-pci"
 product_code_tag = "PRD214"
 inventory_code_tag = "gatling"
-zone = "nonprod-tmaws.io"
-#environment_tag = "qa3"
-vpc = "qa"
-tier = "app"  
+zone = "pci-tmaws.io"
+#environment_tag = "preprodpci3"
+vpc = "preprodpci"
+tier = "app"
 availability_zone = "us-east-1a"
 
 ## Compute Optimized
@@ -46,26 +46,22 @@ availability_zone = "us-east-1a"
 product_name = "gatling"
 #gatling_version = "2.2.4"
 #gatling_scenario_repo = "https://git.tmaws.io/qa/aws-gatling.git"
-#gatling_scenario_repo = "https://git.tmaws.io/nam/gatling-tests.git"
+#simulation_name = "BaseSimulation"
+#run_description = "Single Node Container"
 
 ## If Gatling Simulations are in a Sub-Folder of Repo i.e. gatling-tests/
 #gatling_scenario_location = ""
 
 ## simulation repo commit hash
-#gatling_scenario_branch = "master"
+#gatling_scenario_branch = ""
 
 ## simulation commit hash
 #git_commit = ""
 
-#simulation_name = "BaseSimulation"
-#simulation_name = "${simulation_name}"
-#simulation_name = "com.iomedia.performance.simulation.Login"
-#run_description = "Login -> Terms -> Accept terms"
-
 # Pass any scenraio parameters here, e.g. "-Dusers=100 -Dramp=150 -Dduration=300"
-#gatling_java_opts = "-Dusers=10 -Drps=5 -Dduration=30"
+#gatling_java_opts = ""
 
-ssh_key = "cet-qa-east"
+ssh_key = ""
 
 ## Experimental, don't change yet
 automation_instances = "1"
