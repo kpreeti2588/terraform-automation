@@ -109,7 +109,7 @@ variable "set_session" {
   default = "true"
 }
 variable "selenium_uri" {
-  default = "localhost:4446"
+  default = ""
 }
 variable "parallel" {
   default = ""
@@ -164,4 +164,13 @@ variable "execute_post_build_action" {
 }
 variable "gatling_host" {
   default = "http://gatling-reports.tmaws.io/"
+}
+variable "sauce_port" {
+  default = "4446"
+}
+variable "connect_to_sauce" {
+  default = "false"
+}
+variable "sauce_tunnel_id" {
+  default = ""
 }

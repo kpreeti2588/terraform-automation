@@ -52,6 +52,9 @@ data "template_file" "userdata" {
     execute_post_build_action = "${var.execute_post_build_action}"
     client_name        = "${var.client_name}"
     gatling_host       = "${var.gatling_host}"
+    sauce_port         = "${var.sauce_port}"
+    connect_to_sauce   = "${var.connect_to_sauce}"
+    sauce_tunnel_id    = "${var.sauce_tunnel_id}"
     report_date        = "${timestamp()}"
   }
 }
