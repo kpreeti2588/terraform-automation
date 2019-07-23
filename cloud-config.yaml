@@ -1,0 +1,134 @@
+#cloud-config
+write_files:
+  - path: /etc/systemd/system/docker.service.d/increase-ulimit.conf
+    owner: core:core
+    permissions: 0644
+    content: |
+      [Service]
+      LimitNOFILE=1048576
+  - path: "/aws/config"
+    permissions: "0644"
+    owner: "root"
+    content: |
+      [default]
+      s3 =
+          signature_version = s3v4
+  - path: "/aws/credentials"
+    permissions: "0644"
+    owner: "root"
+coreos:
+  update:
+    reboot-strategy: off
+  units:
+    ## Prevent CoreOS auto update
+    - name: update-engine.service
+      command: stop
+    - name: locksmithd.service
+      command: stop
+    ## Journal Debug settings
+    ## Uncomment below to see Journald logs live on the instance via port: 19531
+    - name: systemd-journal-gatewayd.socket
+      command: start
+      enable: yes
+    - name: systemd-journal-gatewayd.service
+      command: start
+      enable: yes
+    - name: sysctl-tune.service
+      command: start
+      runtime: true
+      content: |
+        [Unit]
+        Description=sysctl
+        [Service]
+        Type=oneshot
+        ExecStart=/sbin/sysctl -w net.ipv4.ip_local_port_range="1025 65535"
+        ExecStart=/sbin/sysctl -w net.ipv4.tcp_max_syn_backlog="40000"
+        ExecStart=/sbin/sysctl -w net.core.somaxconn="40000"
+        ExecStart=/sbin/sysctl -w net.core.wmem_default="8388608"
+        ExecStart=/sbin/sysctl -w net.core.rmem_default="8388608"
+        ExecStart=/sbin/sysctl -w net.ipv4.tcp_sack="1"
+        ExecStart=/sbin/sysctl -w net.ipv4.tcp_window_scaling="1"
+        ExecStart=/sbin/sysctl -w net.ipv4.tcp_fin_timeout="15"
+        ExecStart=/sbin/sysctl -w net.ipv4.tcp_keepalive_intvl="30"
+        ExecStart=/sbin/sysctl -w net.ipv4.tcp_tw_reuse="1"
+        ExecStart=/sbin/sysctl -w net.ipv4.tcp_moderate_rcvbuf="1"
+        ExecStart=/sbin/sysctl -w net.core.rmem_max="134217728"
+        ExecStart=/sbin/sysctl -w net.core.wmem_max="134217728"
+        ExecStart=/sbin/sysctl -w net.ipv4.tcp_mem="134217728"
+        ExecStart=/sbin/sysctl -w net.ipv4.tcp_rmem="4096 277750 134217728"
+        ExecStart=/sbin/sysctl -w net.ipv4.tcp_wmem="4096 277750 134217728"
+        ExecStart=/sbin/sysctl -w net.core.netdev_max_backlog="300000"
+    - name: sysctl.service
+      command: start
+      runtime: true
+      content: |
+        [Unit]
+        Description=sysctl
+        [Service]
+        Type=oneshot
+        ExecStart=/sbin/sysctl -a
+    - name: cadvisor.service
+      command: start
+      runtime: true
+      content: |
+        [Unit]
+        Description=cadvisor
+        [Service]
+        Restart=on-failure
+        RestartSec=30
+        RestartPreventExitStatus=5
+        SyslogIdentifier=cadvisor
+        ExecStartPre=-/usr/bin/mkdir -p /srv/cadvisor
+        ExecStartPre=-/usr/bin/wget -O /srv/cadvisor/cadvisor ${cadvisor_url}
+        ExecStartPre=-/usr/bin/chmod +x /srv/cadvisor/cadvisor
+        ExecStart=/srv/cadvisor/cadvisor -port ${cadvisor_port}
+    - name: automation.service
+      command: start
+      runtime: true
+      content: |
+        [Unit]
+        Description=automation
+        Before=instance-stop.service
+        [Service]
+        TimeoutSec=${max_runtime}
+        ExecStartPre=/usr/bin/sh -c 'rm -fr /home/core/nam-automation'
+        ExecStartPre=/usr/bin/git clone -b ${automation_scenario_branch} ${automation_scenario_repo} /home/core/nam-automation
+        ExecStartPre=/usr/bin/sh -c 'if [ ! -z "${automation_scenario_git_commit}" ]; then \
+          cd /home/core/nam-automation; /usr/bin/git checkout ${automation_scenario_git_commit}; \
+          fi'
+        ExecStartPre=/usr/bin/docker pull tmhub.io/nam/nam-automation:${docker_image_version}
+        ExecStartPre=/usr/bin/docker pull tmhub.io/aws/aws-cli:${awscli_version}
+        ExecStartPre=/usr/bin/docker run --rm \
+          --name automation \
+          --shm-size 8gb \
+          -v /home/core/nam-automation:/usr/src \
+          -w /usr/src \
+          tmhub.io/nam/nam-automation:${docker_image_version} \
+          mvn generate-test-resources -Ptest -Dcalendar=${calendar_name} -DwriteToFile=true -DclearX=A -DreplaceCalendarFile=true -Denv=${environment_name} -DchromedriverPath=/usr/bin/chromedriver -DchromeArgument=headless '-DenvConfig=${env_config}' -DrelatedEnv=${related_env} -DdeviceConf=${device_conf} -DrunLocally=${run_locally} '-Dgroups=${groups}' -DcreateAccount=${create_account} -DuseATSGenericUrl=${use_ats_generic_url} -DadminUserName=${admin_username} '-DadminPassword=${admin_password}' -Dsessions=${sessions} -DsetSession=${set_session} -DseleniumURI=${selenium_uri} -Dparallel=${parallel} '-Dseats.paid=${seats_paid}' -DgenerateNewTestNgFile=${generate_new_testng_file}
+        ExecStart=/usr/bin/docker run --rm \
+          --name automation \
+          --shm-size 8gb \
+          -v /home/core/nam-automation:/usr/src \
+          -w /usr/src \
+          tmhub.io/nam/nam-automation:${docker_image_version} \
+          mvn test -Psurefire -Dtestng-suite-xml=testng-customsuite.xml -DchromedriverPath=/usr/bin/chromedriver -DchromeArgument=headless -Dcalendar=${calendar_name} -Denv=${environment_name} -DclearX=A '-DenvConfig=${env_config}' -DrelatedEnv=${related_env} -DsuiteTo=${suite_to} -DclassTo=${class_to} -DtakeScreenshot=${take_screenshot} -Dscreensizepadding=${screen_size_padding} -DreplaceCalendarFile=true -Dprofiles=default -Dbranch=${automation_scenario_branch} -DrunLocally=${run_locally} -DseleniumURI=${selenium_uri} -DdeviceConf=${device_conf} -DjenkinsIp=${jenkins_ip} -DaccountStatus=${account_status} -DdeviceList=${device_list} -DattachLogFile=${attach_log_file} -DsplunkLogIntegration=${splunk_log_integration} -DvideoGifIntegration=${video_gif_integration} -DconsoleLogsIntegration=${console_log_integration} -DgenerateGifOnlyOnFailure=${generate_gif_only_on_failure} -DkibanaLogIntegration=${kibana_log_integration} -DgatlingHost=${gatling_host}
+        ExecStopPost=/usr/bin/echo Hello from stop
+        ExecStopPost=/usr/bin/sh -c 'chmod +x /home/core/nam-automation/upload.sh'
+        ExecStopPost=/usr/bin/sh -c '/home/core/nam-automation/upload.sh /home/core/nam-automation/Reports/ ${client_name}'
+        ExecStopPost=/usr/bin/docker run --rm \
+          --name automation \
+          --shm-size 8gb \
+          -v /home/core/nam-automation:/usr/src \
+          -w /usr/src \
+          tmhub.io/nam/nam-automation:${docker_image_version} \
+          mvn generate-test-resources -PpostBuildAction -DrunLocally=${run_locally} -Denv=${environment_name} '-DenvConfig=${env_config}' -DadminUserName=${admin_username} '-DadminPassword=${admin_password}' -DsetSession=${set_session} -DseleniumURI=${selenium_uri} -DrelatedEnv=${related_env} -Dcalendar=${calendar_name} -DchromedriverPath=/usr/bin/chromedriver -DchromeArgument=headless
+    - name: instance-stop.service
+      command: start
+      runtime: true
+      content: |
+        [Unit]
+        Description=awscli
+        After=automation.service
+        [Service]
+        ExecStartPre=/usr/bin/docker pull tmhub.io/aws/aws-cli:${awscli_version}
+        ExecStart=/usr/bin/sh -c '/usr/bin/docker run --rm tmhub.io/aws/aws-cli:${awscli_version} ec2 terminate-instances --instance-id `curl http://169.254.169.254/latest/meta-data/instance-id` --region ${region}'
