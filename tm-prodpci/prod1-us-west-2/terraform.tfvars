@@ -11,7 +11,7 @@ product_code_tag = "PRD214"
 inventory_code_tag = "gatling"
 zone = "pci-tmaws.io"
 #environment_tag = "preprodpci3"
-vpc = "preprodpci"
+vpc = "prodpci"
 tier = "app"
 availability_zone = "us-east-1a"
 

@@ -8,10 +8,11 @@ terraformer_bucket = "terraform.nonprod1.us-east-1.tmaws"
 aws_region = "us-east-1"
 account_tag = "tm-nonprod"
 product_code_tag = "PRD214"
-inventory_code_tag = "gatling"
+inventory_code_tag = "jenkins"
+zone = "nonprod-tmaws.io"
 #environment_tag = "qa3"
 vpc = "qa"
-tier = "app"
+tier = "app"  
 availability_zone = "us-east-1a"
 
 ## Compute Optimized
@@ -42,7 +43,7 @@ availability_zone = "us-east-1a"
 ##m4.16xlarge	64	256 GiB
 #instance_type = "m4.16xlarge"
 
-product_name = "gatling"
+product_name = "jenkins"
 #gatling_version = "2.2.4"
 #gatling_scenario_repo = "https://git.tmaws.io/qa/aws-gatling.git"
 #gatling_scenario_repo = "https://git.tmaws.io/nam/gatling-tests.git"
@@ -64,7 +65,7 @@ product_name = "gatling"
 # Pass any scenraio parameters here, e.g. "-Dusers=100 -Dramp=150 -Dduration=300"
 #gatling_java_opts = "-Dusers=10 -Drps=5 -Dduration=30"
 
-ssh_key = "cet-qa-east"
+ssh_key = "cet-dev-east"
 
 ## Experimental, don't change yet
 automation_instances = "1"

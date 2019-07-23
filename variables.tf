@@ -5,14 +5,18 @@ variable "inventory_code_tag" {}
 variable "account_tag" {}
 variable "environment_tag" {}
 variable "vpc" {}
+variable "zone" {
+  default = "nonprod-tmaws.io"
+}
 variable "tier" {}
 variable "availability_zone" {}
 
 variable "instance_type" {}
 variable "ssh_key" {}
 
-variable "calendar_name" {}
-variable "environment_name" {}
+variable "environment_name" {
+  default = "GENERIC"
+}
 
 variable "enable_monitoring" {
   default = "false"
@@ -46,8 +50,6 @@ variable "git_commit" {
   default = ""
 }
 
-variable "client_name" {}
-
 ## Terraform will run for 50 minutes before killing the job. Can be increased.
 variable "max_runtime" {
   default = "36000"
@@ -59,7 +61,7 @@ variable "config" {
 }
 
 variable "docker_image_version" {
-  default = "base"
+  default = "1.0"
 }
 
 ## Repo of Automation Simulations and Configuration
@@ -83,85 +85,10 @@ variable "run_description" {
   default = "Automation Scenarios"
 }
 
-variable "env_config" {}
-variable "related_env" {}
-variable "device_conf" {}
-variable "run_locally" {
-  default = "true"
+variable "jenkins_port" {
+  default = "8080"
 }
-variable "groups" {}
-variable "create_account" {
-  default = "addEventsOnlyForNewAccounts"
-}
-variable "use_ats_generic_url" {
-  default = "true"
-}
-variable "admin_username" {
-  default = ""
-}
-variable "admin_password" {
-  default = ""
-}
-variable "sessions" {
-  default = ""
-}
-variable "set_session" {
-  default = "true"
-}
-variable "selenium_uri" {
-  default = "localhost:4446"
-}
-variable "parallel" {
-  default = ""
-}
-variable "seats_paid" {
-  default = ""
-}
-variable "generate_new_testng_file" {
-  default = "false"
-}
-variable "suite_to" {
-  default = "prateek.ladha@ticketmaster.com;tejpal@ticketmaster.com;sanghamitra.das@ticketmaster.com;navjyot.singh@ticketmaster.com;akshat.mishra@ticketmaster.com;bhawna.sharma@ticketmaster.com;preeti.kumari@ticketmaster.com;ashish.tanwar@ticketmaster.com"
-}
-variable "class_to" {
-  default = "prateek.ladha@ticketmaster.com;tejpal@ticketmaster.com;sanghamitra.das@ticketmaster.com;navjyot.singh@ticketmaster.com;akshat.mishra@ticketmaster.com;bhawna.sharma@ticketmaster.com;preeti.kumari@ticketmaster.com;ashish.tanwar@ticketmaster.com"
-}
-variable "take_screenshot" {
-  default = "false"
-}
-variable "screen_size_padding" {
-  default = ""
-}
-variable "jenkins_ip" {
-  default = ""
-}
-variable "account_status" {
-  default = "PLAN"
-}
-variable "device_list" {
-  default = "laptop,desktop,mobile"
-}
-variable "attach_log_file" {
-  default = "false"
-}
-variable "splunk_log_integration" {
-  default = "true"
-}
-variable "video_gif_integration" {
-  default = "true"
-}
-variable "console_log_integration" {
-  default = "true"
-}
-variable "generate_gif_only_on_failure" {
-  default = "true"
-}
-variable "kibana_log_integration" {
-  default = "true"
-}
-variable "execute_post_build_action" {
-  default = "true"
-}
-variable "gatling_host" {
-  default = "http://gatling-reports.tmaws.io/"
+
+variable "modified_by" {
+  default = "NA"
 }
