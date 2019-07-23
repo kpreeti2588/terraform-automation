@@ -4,7 +4,6 @@ module "networks" {
 
 module "naming" {
   source = "git::https://git.tmaws.io/AWS/terraform-module-naming.git"
-
   product_code_tag   = "${var.product_code_tag}"
   environment_tag    = "${var.environment_tag}"
   inventory_code_tag = "${var.inventory_code_tag}"
@@ -17,4 +16,9 @@ module "ami" {
   region  = "${var.aws_region}"
   os      = "coreos"
   version = "latest"
+}
+
+module "zones" {
+  source = "git::http://git.tm.tmcs/AWS/terraform-module-zones.git"
+  zone   = "${var.zone}"
 }
