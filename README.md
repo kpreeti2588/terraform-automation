@@ -1,1 +1,1 @@
-jenkins up through pipeline trigger  
+jenkins up through pipeline trigger
