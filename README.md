@@ -1,4 +1,1 @@
-jenkins up through pipeline trigger  
-
-test branch
-
+jenkins up through pipeline trigger
